@@ -51,6 +51,21 @@ function getIp(request: Request): string | undefined {
   return forwarded.split(",")[0]?.trim();
 }
 
+function mapTrackingType(eventName?: string): string {
+  switch ((eventName || "").toLowerCase()) {
+    case "purchase":
+      return "PURCHASE";
+    case "addtocart":
+      return "ADD_TO_CART";
+    case "pagevisit":
+      return "PAGE_VISIT";
+    case "viewcontent":
+      return "VIEW_CONTENT";
+    default:
+      return "PURCHASE";
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const endpoint = process.env.REDDIT_CONVERSIONS_ENDPOINT;
@@ -87,9 +102,9 @@ export async function POST(request: Request) {
         events: [
           cleanObject({
             event_at: eventAt,
-            action_source: "website",
+            action_source: "WEB",
             type: {
-              tracking_type: body.eventName || "Purchase"
+              tracking_type: mapTrackingType(body.eventName)
             },
             user: cleanObject({
               ip_address: ipAddress,
