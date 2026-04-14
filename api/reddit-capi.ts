@@ -130,6 +130,11 @@ export async function POST(request: Request) {
 
     const redditResponseText = await redditResponse.text();
 
+    console.log("reddit endpoint:", endpoint);
+    console.log("reddit payload:", JSON.stringify(redditPayload));
+    console.log("reddit status:", redditResponse.status);
+    console.log("reddit response text:", redditResponseText);
+
     return new Response(
       JSON.stringify({
         ok: redditResponse.ok,
@@ -146,6 +151,8 @@ export async function POST(request: Request) {
       }
     );
   } catch (error: any) {
+    console.error("server catch error:", error);
+
     return new Response(
       JSON.stringify({
         ok: false,
