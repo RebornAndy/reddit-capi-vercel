@@ -1,4 +1,4 @@
-export default async function handler(request: Request): Promise<Response> {
+export function GET(request: Request) {
   return new Response(
     JSON.stringify({
       ok: true,
