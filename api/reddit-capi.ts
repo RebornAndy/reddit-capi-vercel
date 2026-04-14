@@ -1,4 +1,99 @@
-export function GET() {
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const debug = url.searchParams.get("debug");
+
+  if (debug === "1") {
+    try {
+      const endpoint = process.env.REDDIT_CONVERSIONS_ENDPOINT;
+      const accessToken = process.env.REDDIT_CONVERSION_ACCESS_TOKEN;
+      const testId = process.env.REDDIT_TEST_ID;
+
+      if (!endpoint || !accessToken) {
+        return new Response(
+          JSON.stringify({
+            ok: false,
+            error: "Missing REDDIT_CONVERSIONS_ENDPOINT or REDDIT_CONVERSION_ACCESS_TOKEN"
+          }),
+          {
+            status: 500,
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        );
+      }
+
+      const redditPayload = {
+        data: {
+          events: [
+            {
+              event_at: Date.now(),
+              action_source: "website",
+              type: {
+                tracking_type: "Purchase"
+              },
+              metadata: {
+                item_count: 1,
+                currency: "USD",
+                value: 1,
+                conversion_id: "debug-" + Date.now()
+              },
+              test_id: testId || undefined
+            }
+          ]
+        }
+      };
+
+      const redditResponse = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(redditPayload)
+      });
+
+      const redditResponseText = await redditResponse.text();
+
+      return new Response(
+        JSON.stringify(
+          {
+            ok: redditResponse.ok,
+            status: redditResponse.status,
+            endpoint,
+            sent: redditPayload,
+            redditResponseText
+          },
+          null,
+          2
+        ),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+    } catch (error: any) {
+      return new Response(
+        JSON.stringify(
+          {
+            ok: false,
+            error: error?.message || "Unknown error"
+          },
+          null,
+          2
+        ),
+        {
+          status: 500,
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+    }
+  }
+
   return new Response(
     JSON.stringify({
       ok: true,
@@ -118,18 +213,17 @@ export async function POST(request: Request) {
 
     const redditResponseText = await redditResponse.text();
 
-    console.log("reddit endpoint:", endpoint);
-    console.log("reddit payload:", JSON.stringify(redditPayload));
-    console.log("reddit status:", redditResponse.status);
-    console.log("reddit response text:", redditResponseText);
-
     return new Response(
-      JSON.stringify({
-        ok: redditResponse.ok,
-        status: redditResponse.status,
-        sent: redditPayload,
-        redditResponseText
-      }),
+      JSON.stringify(
+        {
+          ok: redditResponse.ok,
+          status: redditResponse.status,
+          sent: redditPayload,
+          redditResponseText
+        },
+        null,
+        2
+      ),
       {
         status: redditResponse.ok ? 200 : 500,
         headers: {
@@ -139,13 +233,15 @@ export async function POST(request: Request) {
       }
     );
   } catch (error: any) {
-    console.error("server catch error:", error);
-
     return new Response(
-      JSON.stringify({
-        ok: false,
-        error: error?.message || "Unknown error"
-      }),
+      JSON.stringify(
+        {
+          ok: false,
+          error: error?.message || "Unknown error"
+        },
+        null,
+        2
+      ),
       {
         status: 500,
         headers: {
