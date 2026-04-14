@@ -6,7 +6,6 @@ export async function GET(request: Request) {
     try {
       const endpoint = process.env.REDDIT_CONVERSIONS_ENDPOINT;
       const accessToken = process.env.REDDIT_CONVERSION_ACCESS_TOKEN;
-      const testId = process.env.REDDIT_TEST_ID;
 
       if (!endpoint || !accessToken) {
         return new Response(
@@ -24,7 +23,6 @@ export async function GET(request: Request) {
       }
 
       const redditPayload = {
-        test_id: testId || undefined,
         data: {
           events: [
             {
@@ -150,7 +148,6 @@ export async function POST(request: Request) {
   try {
     const endpoint = process.env.REDDIT_CONVERSIONS_ENDPOINT;
     const accessToken = process.env.REDDIT_CONVERSION_ACCESS_TOKEN;
-    const testId = process.env.REDDIT_TEST_ID;
 
     if (!endpoint || !accessToken) {
       return new Response(
@@ -178,7 +175,6 @@ export async function POST(request: Request) {
       : Date.now();
 
     const redditPayload = {
-      test_id: testId || undefined,
       data: {
         events: [
           cleanObject({
