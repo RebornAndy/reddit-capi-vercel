@@ -27,7 +27,6 @@ export async function GET(request: Request) {
           events: [
             {
               event_at: Date.now(),
-              action_source: "WEB",
               type: {
                 tracking_type: "Purchase"
               },
@@ -179,7 +178,6 @@ export async function POST(request: Request) {
         events: [
           cleanObject({
             event_at: eventAt,
-            action_source: "WEB",
             type: {
               tracking_type: mapTrackingType(body.eventName)
             },
@@ -209,11 +207,6 @@ export async function POST(request: Request) {
 
     const redditResponseText = await redditResponse.text();
 
-    console.log("reddit endpoint:", endpoint);
-    console.log("reddit payload:", JSON.stringify(redditPayload));
-    console.log("reddit status:", redditResponse.status);
-    console.log("reddit response text:", redditResponseText);
-
     return new Response(
       JSON.stringify(
         {
@@ -234,8 +227,6 @@ export async function POST(request: Request) {
       }
     );
   } catch (error: any) {
-    console.error("server catch error:", error);
-
     return new Response(
       JSON.stringify(
         {
