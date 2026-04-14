@@ -30,21 +30,6 @@ function cleanObject<T extends Record<string, any>>(obj: T): T {
   ) as T;
 }
 
-function normalizeEmail(email?: string | null): string | undefined {
-  if (!email) return undefined;
-  return email.trim().toLowerCase();
-}
-
-function normalizePhone(phone?: string | null): string | undefined {
-  if (!phone) return undefined;
-  return phone.replace(/[^\d+]/g, "");
-}
-
-function normalizeExternalId(value?: string | null): string | undefined {
-  if (!value) return undefined;
-  return value.trim();
-}
-
 function getIp(request: Request): string | undefined {
   const forwarded = request.headers.get("x-forwarded-for");
   if (!forwarded) return undefined;
@@ -97,7 +82,8 @@ export async function POST(request: Request) {
       ? new Date(body.timestamp).getTime()
       : Date.now();
 
-    const redditPayload = {
+    const redditPayload = cleanObject({
+      test_id: testId || undefined,
       data: {
         events: [
           cleanObject({
@@ -108,31 +94,18 @@ export async function POST(request: Request) {
             },
             user: cleanObject({
               ip_address: ipAddress,
-              user_agent: userAgent,
-              email: normalizeEmail(body.email),
-              phone_number: normalizePhone(body.phone),
-              external_id: normalizeExternalId(body.clientId)
+              user_agent: userAgent
             }),
             metadata: cleanObject({
-              item_count: body.itemCount != null ? Number(body.itemCount) : undefined,
-              currency: body.currency,
-              value: body.value != null ? Number(body.value) : undefined,
-              conversion_id: body.conversionId,
-              products: Array.isArray(body.products)
-                ? body.products.map((p: any) =>
-                    cleanObject({
-                      id: p.id,
-                      name: p.name,
-                      category: p.category
-                    })
-                  )
-                : undefined
-            }),
-            test_id: testId || undefined
+              item_count: body.itemCount != null ? Number(body.itemCount) : 1,
+              currency: body.currency || "USD",
+              value: body.value != null ? Number(body.value) : 1,
+              conversion_id: body.conversionId
+            })
           })
         ]
       }
-    };
+    });
 
     const redditResponse = await fetch(endpoint, {
       method: "POST",
