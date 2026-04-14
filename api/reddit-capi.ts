@@ -24,6 +24,7 @@ export async function GET(request: Request) {
       }
 
       const redditPayload = {
+        test_id: testId || undefined,
         data: {
           events: [
             {
@@ -37,8 +38,7 @@ export async function GET(request: Request) {
                 currency: "USD",
                 value: 1,
                 conversion_id: "debug-" + Date.now()
-              },
-              test_id: testId || undefined
+              }
             }
           ]
         }
@@ -178,6 +178,7 @@ export async function POST(request: Request) {
       : Date.now();
 
     const redditPayload = {
+      test_id: testId || undefined,
       data: {
         events: [
           cleanObject({
@@ -195,8 +196,7 @@ export async function POST(request: Request) {
               currency: body.currency || "USD",
               value: body.value != null ? Number(body.value) : 1,
               conversion_id: body.conversionId
-            }),
-            test_id: testId || undefined
+            })
           })
         ]
       }
@@ -212,6 +212,11 @@ export async function POST(request: Request) {
     });
 
     const redditResponseText = await redditResponse.text();
+
+    console.log("reddit endpoint:", endpoint);
+    console.log("reddit payload:", JSON.stringify(redditPayload));
+    console.log("reddit status:", redditResponse.status);
+    console.log("reddit response text:", redditResponseText);
 
     return new Response(
       JSON.stringify(
@@ -233,6 +238,8 @@ export async function POST(request: Request) {
       }
     );
   } catch (error: any) {
+    console.error("server catch error:", error);
+
     return new Response(
       JSON.stringify(
         {
