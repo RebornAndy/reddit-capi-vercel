@@ -39,15 +39,15 @@ function getIp(request: Request): string | undefined {
 function mapTrackingType(eventName?: string): string {
   switch ((eventName || "").toLowerCase()) {
     case "purchase":
-      return "PURCHASE";
+      return "Purchase";
     case "addtocart":
-      return "ADD_TO_CART";
+      return "AddToCart";
     case "pagevisit":
-      return "PAGE_VISIT";
+      return "PageVisit";
     case "viewcontent":
-      return "VIEW_CONTENT";
+      return "ViewContent";
     default:
-      return "PURCHASE";
+      return "Purchase";
   }
 }
 
@@ -82,13 +82,12 @@ export async function POST(request: Request) {
       ? new Date(body.timestamp).getTime()
       : Date.now();
 
-    const redditPayload = cleanObject({
-      test_id: testId || undefined,
+    const redditPayload = {
       data: {
         events: [
           cleanObject({
             event_at: eventAt,
-            action_source: "WEB",
+            action_source: "website",
             type: {
               tracking_type: mapTrackingType(body.eventName)
             },
@@ -101,11 +100,12 @@ export async function POST(request: Request) {
               currency: body.currency || "USD",
               value: body.value != null ? Number(body.value) : 1,
               conversion_id: body.conversionId
-            })
+            }),
+            test_id: testId || undefined
           })
         ]
       }
-    });
+    };
 
     const redditResponse = await fetch(endpoint, {
       method: "POST",
