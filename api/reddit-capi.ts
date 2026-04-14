@@ -27,6 +27,7 @@ export async function GET(request: Request) {
           events: [
             {
               event_at: Date.now(),
+              action_source: "WEBSITE",
               type: {
                 tracking_type: "Purchase"
               },
@@ -178,6 +179,7 @@ export async function POST(request: Request) {
         events: [
           cleanObject({
             event_at: eventAt,
+            action_source: "WEBSITE",
             type: {
               tracking_type: mapTrackingType(body.eventName)
             },
