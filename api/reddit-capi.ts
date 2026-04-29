@@ -139,6 +139,8 @@ function mapTrackingType(eventName?: string): string {
       return "PageVisit";
     case "viewcontent":
       return "ViewContent";
+    case "signup":
+      return "SignUp";
     default:
       return "Purchase";
   }
